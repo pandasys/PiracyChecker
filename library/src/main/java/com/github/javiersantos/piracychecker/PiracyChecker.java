@@ -23,6 +23,7 @@ public class PiracyChecker {
     private String signature;
     private List<InstallerID> installerIDs;
     private PiracyCheckerCallback callback;
+    private String applicationId;
 
     public PiracyChecker(Context context) {
         this.context = context;
@@ -44,6 +45,13 @@ public class PiracyChecker {
 
     public PiracyChecker enableGooglePlayLicensing(String licenseKeyBase64) {
         this.enableLVL = true;
+        this.licenseBase64 = licenseKeyBase64;
+        return this;
+    }
+
+    public PiracyChecker enableGooglePlayLicensing(String applicationId, String licenseKeyBase64) {
+        this.enableLVL = true;
+        this.applicationId = applicationId;
         this.licenseBase64 = licenseKeyBase64;
         return this;
     }
@@ -89,7 +97,7 @@ public class PiracyChecker {
         } else {
             if (enableLVL) {
                 String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-                LicenseChecker licenseChecker = new LicenseChecker(context, new ServerManagedPolicy(context, new AESObfuscator(UtilsLibrary.SALT, context.getPackageName(), deviceId)), licenseBase64);
+                LicenseChecker licenseChecker = new LicenseChecker(context, new ServerManagedPolicy(context, new AESObfuscator(UtilsLibrary.SALT, applicationId != null ? applicationId : context.getPackageName(), deviceId)), licenseBase64);
                 licenseChecker.checkAccess(new LicenseCheckerCallback() {
                     @Override
                     public void allow(int reason) {
